@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Speed Test</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="header">
+    <h1>Typing Speed Test</h1>
+    <nav class="nav">
+      <a href="#landing" id="nav-landing" class="nav-link">Test</a>
+      <a href="#reports" id="nav-reports" class="nav-link">Reports</a>
+      <a href="#resources" id="nav-resources" class="nav-link">Resources</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <!-- Landing / Config -->
+    <section id="screen-landing" class="screen" aria-label="Test configuration">
+      <div class="config-card">
+        <h2>Configure your test</h2>
+        <label for="timer-select">Duration</label>
+        <select id="timer-select" aria-label="Test duration">
+          <option value="30">30 seconds</option>
+          <option value="60">1 minute</option>
+          <option value="120">2 minutes</option>
+          <option value="300">5 minutes</option>
+          <option value="600">10 minutes</option>
+        </select>
+        <button type="button" id="btn-start" class="btn btn-primary">Start Test</button>
+        <p class="hint">Press Enter to start</p>
+      </div>
+    </section>
+
+    <!-- Test -->
+    <section id="screen-test" class="screen hidden" aria-label="Typing test">
+      <div class="test-header">
+        <span id="test-timer" class="timer" aria-live="polite">0:00</span>
+      </div>
+      <div class="passage-wrapper">
+        <div id="passage-display" class="passage-display" aria-hidden="true"></div>
+        <textarea
+          id="test-input"
+          class="test-input"
+          placeholder="Type the text above..."
+          rows="6"
+          aria-label="Type the passage"
+          spellcheck="false"
+          autocomplete="off"
+          autocapitalize="off"
+        ></textarea>
+      </div>
+      <p class="test-hint">Press Escape to cancel test</p>
+    </section>
+
+    <!-- Results -->
+    <section id="screen-results" class="screen hidden" aria-label="Test results">
+      <div class="results-card">
+        <h2>Results</h2>
+        <div class="results-stats">
+          <div class="stat">
+            <span class="stat-value" id="result-wpm">0</span>
+            <span class="stat-label">WPM</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="result-accuracy">0%</span>
+            <span class="stat-label">Accuracy</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="result-characters">0</span>
+            <span class="stat-label">Characters</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="result-consistency">0</span>
+            <span class="stat-label">Consistency</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="result-duration">—</span>
+            <span class="stat-label">Time selected</span>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="wpm-chart" aria-label="WPM over time"></canvas>
+        </div>
+        <div class="results-actions">
+          <button type="button" id="btn-try-again" class="btn btn-primary">Try Again</button>
+          <button type="button" id="btn-new-test" class="btn btn-secondary">New Test</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reports -->
+    <section id="screen-reports" class="screen hidden" aria-label="History and reports">
+      <div class="reports-card">
+        <h2>History & Reports</h2>
+        <div class="personal-bests" id="personal-bests"></div>
+        <div class="chart-container">
+          <canvas id="trend-chart" aria-label="WPM improvement trend"></canvas>
+        </div>
+        <div class="history-table-wrapper">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Date / Time</th>
+                <th>Duration</th>
+                <th>WPM</th>
+                <th>Accuracy</th>
+                <th>Consistency</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resources -->
+    <section id="screen-resources" class="screen hidden" aria-label="Typing resources">
+      <div class="resources-card">
+        <h2>Resources</h2>
+        <div class="resources-content">
+          <section class="resource-section">
+            <h3>Tips for improving typing speed</h3>
+            <ul>
+              <li>Practice regularly—consistency matters more than long sessions.</li>
+              <li>Focus on accuracy first; speed will follow.</li>
+              <li>Use all ten fingers and learn touch typing.</li>
+              <li>Keep your eyes on the screen, not the keyboard.</li>
+              <li>Take short breaks to avoid fatigue.</li>
+            </ul>
+          </section>
+          <section class="resource-section">
+            <h3>Proper finger placement</h3>
+            <p>Home row keys: <strong>A S D F</strong> (left hand) and <strong>J K L ;</strong> (right hand). Left index on F, right index on J (feel the bumps). From there, reach up and down for other keys without moving your whole hand.</p>
+          </section>
+          <section class="resource-section">
+            <h3>Common mistakes to avoid</h3>
+            <ul>
+              <li>Looking at the keyboard while typing.</li>
+              <li>Using only a few fingers instead of all ten.</li>
+              <li>Hitting keys with the wrong finger and not correcting the habit.</li>
+              <li>Rushing and sacrificing accuracy for speed.</li>
+              <li>Poor posture or positioning of hands and wrists.</li>
+            </ul>
+          </section>
+          <section class="resource-section">
+            <h3>Typing tutorials and links</h3>
+            <ul>
+              <li><a href="https://www.typing.com/" target="_blank" rel="noopener noreferrer">Typing.com</a> – Free lessons and games.</li>
+              <li><a href="https://www.keybr.com/" target="_blank" rel="noopener noreferrer">Keybr</a> – Practice with generated text.</li>
+              <li><a href="https://monkeytype.com/" target="_blank" rel="noopener noreferrer">Monkeytype</a> – Minimal typing test.</li>
+            </ul>
+          </section>
+          <section class="resource-section">
+            <h3>Keyboard layout reference</h3>
+            <p>Standard QWERTY layout. Left hand: pinky (Q,A,Z), ring (W,S,X), middle (E,D,C), index (R,F,V,T,G,B). Right hand: index (Y,H,N,U,J,M), middle (I,K,&lt;,), ring (O,L,&gt;), pinky (P,;,/, and modifiers). Thumbs on space.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
