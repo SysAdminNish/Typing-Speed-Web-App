@@ -23,16 +23,29 @@ let appState = {
   lastResult: null,
 };
 
-const timerSelect = document.getElementById("timer-select");
+let passageWindowStart = 0;
+
 const btnStart = document.getElementById("btn-start");
 const btnTryAgain = document.getElementById("btn-try-again");
 const btnNewTest = document.getElementById("btn-new-test");
 const testTimerEl = document.getElementById("test-timer");
 const passageDisplay = document.getElementById("passage-display");
+const passageWrapper = document.querySelector(".passage-wrapper");
 const testInput = document.getElementById("test-input");
 const navLanding = document.getElementById("nav-landing");
 const navReports = document.getElementById("nav-reports");
 const navResources = document.getElementById("nav-resources");
+const durationSelectedLabel = document.getElementById("duration-selected-label");
+const emptyStateStats = document.getElementById("empty-state-stats");
+const emptyStateTip = document.getElementById("empty-state-tip");
+
+const DURATIONS = [
+  { value: 30, label: "30s" },
+  { value: 60, label: "1min" },
+  { value: 120, label: "2min" },
+  { value: 300, label: "5min" },
+  { value: 600, label: "10min" },
+];
 
 const resultWpm = document.getElementById("result-wpm");
 const resultAccuracy = document.getElementById("result-accuracy");
@@ -50,6 +63,30 @@ function showScreen(screenId) {
   if (screenId === SCREENS.reports) {
     renderReports();
   }
+  if (screenId === SCREENS.landing) {
+    renderEmptyState();
+  }
+}
+
+function renderEmptyState() {
+  const history = storage.getHistory();
+  const { byDuration } = storage.getPersonalBests();
+  const bestWpm = Math.max(0, ...Object.values(byDuration).map((x) => x.bestWpm));
+  const TIPS = [
+    "Tip: Keep your fingers on the home row keys.",
+    "Tip: Position fingers on home row (ASDF JKL;) for better speed.",
+    "Tip: Focus on accuracy first; speed will follow.",
+  ];
+  if (bestWpm > 0 && emptyStateStats) {
+    emptyStateStats.textContent = `Your best: ${bestWpm} WPM`;
+    emptyStateStats.style.display = "";
+  } else if (emptyStateStats) {
+    emptyStateStats.style.display = "none";
+  }
+  if (emptyStateTip) {
+    const tipIndex = Math.floor(Math.random() * TIPS.length);
+    emptyStateTip.textContent = TIPS[tipIndex];
+  }
 }
 
 function formatDuration(seconds) {
@@ -58,11 +95,16 @@ function formatDuration(seconds) {
   return `${seconds / 3600} min`;
 }
 
+function getDurationLabel(seconds) {
+  const d = DURATIONS.find((x) => x.value === seconds);
+  return d ? d.label : formatDuration(seconds);
+}
+
 function startTest() {
-  const duration = parseInt(timerSelect.value, 10) || 60;
-  appState.durationSeconds = duration;
-  appState.currentPassage = getRandomPassage();
+  const duration = appState.durationSeconds;
+  appState.currentPassage = getRandomPassage(duration);
   appState.testInProgress = true;
+  passageWindowStart = 0;
 
   passageDisplay.innerHTML = "";
   testInput.value = "";
@@ -71,7 +113,6 @@ function startTest() {
   test.start(duration, appState.currentPassage, {
     onTick(remaining) {
       testTimerEl.textContent = `${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, "0")}`;
-      renderPassageHighlight();
     },
     onComplete(result) {
       appState.testInProgress = false;
@@ -89,19 +130,89 @@ function startTest() {
   testInput.focus();
 }
 
+const LINES_VISIBLE = 6;
+const APPROX_CHARS_PER_LINE = 70;
+const PASSAGE_WINDOW_CHARS = LINES_VISIBLE * APPROX_CHARS_PER_LINE;
+const LINES_BEFORE_FIRST_SHIFT = 2;
+const CHARS_BEFORE_LINE_SHIFT = LINES_BEFORE_FIRST_SHIFT * APPROX_CHARS_PER_LINE;
+const TYPING_LINE_OFFSET_RATIO = 0.28;
+
+function wordBoundaryStart(passage, preferred) {
+  let idx = Math.max(0, preferred);
+  while (idx > 0 && passage[idx - 1] !== " " && passage[idx - 1] !== "\n") idx--;
+  return idx;
+}
+
+function wordBoundaryEnd(passage, preferred, len) {
+  let idx = Math.min(preferred, len);
+  while (idx < len && passage[idx] !== " " && passage[idx] !== "\n") idx++;
+  if (idx < len) idx++;
+  return idx;
+}
+
+function nextLineStart(passage, from, len) {
+  const searchEnd = Math.min(from + APPROX_CHARS_PER_LINE + 20, len);
+  for (let i = from; i < searchEnd; i++) {
+    if (passage[i] === "\n") return i + 1;
+  }
+  return wordBoundaryStart(passage, from + APPROX_CHARS_PER_LINE);
+}
+
 function renderPassageHighlight() {
   const { passage, input } = test.getPassageAndInput();
-  passageDisplay.innerHTML = "";
-  for (let i = 0; i < passage.length; i++) {
+  const len = passage.length;
+  const pos = input.length;
+
+  if (len === 0) {
+    passageDisplay.innerHTML = "";
+    return;
+  }
+
+  const charsTypedInWindow = pos - passageWindowStart;
+  if (charsTypedInWindow >= CHARS_BEFORE_LINE_SHIFT) {
+    while (pos >= passageWindowStart + CHARS_BEFORE_LINE_SHIFT) {
+      const next = nextLineStart(passage, passageWindowStart, len);
+      if (next <= passageWindowStart) break;
+      passageWindowStart = next;
+    }
+  }
+
+  const start = passageWindowStart;
+  const end = wordBoundaryEnd(passage, start + PASSAGE_WINDOW_CHARS, len);
+  const fragment = document.createDocumentFragment();
+
+  for (let i = start; i < end; i++) {
     const span = document.createElement("span");
     span.className = "char";
     span.textContent = passage[i];
-    if (i < input.length) {
+    if (i < pos) {
       span.classList.add(passage[i] === input[i] ? "correct" : "incorrect");
-    } else if (i === input.length) {
+    } else if (i === pos) {
       span.classList.add("current");
     }
-    passageDisplay.appendChild(span);
+    fragment.appendChild(span);
+  }
+
+  const inner = document.createElement("div");
+  inner.className = "passage-inner";
+  inner.appendChild(fragment);
+
+  passageDisplay.innerHTML = "";
+  passageDisplay.appendChild(inner);
+
+  if (pos < len) {
+    const currentSpan = passageDisplay.querySelector(".char.current");
+    if (currentSpan) {
+      requestAnimationFrame(() => {
+        const container = passageDisplay;
+        const innerEl = container.querySelector(".passage-inner");
+        const spanTop = currentSpan.offsetTop;
+        const containerHeight = container.clientHeight;
+        const targetOffset = containerHeight * TYPING_LINE_OFFSET_RATIO;
+        const translateY = Math.max(0, spanTop - targetOffset);
+        innerEl.style.transform = `translateY(-${translateY}px)`;
+      });
+    }
   }
 }
 
@@ -114,8 +225,9 @@ function bindResultToDom(result) {
 }
 
 function tryAgain() {
-  appState.currentPassage = getRandomPassage();
+  appState.currentPassage = getRandomPassage(appState.durationSeconds);
   appState.testInProgress = true;
+  passageWindowStart = 0;
   passageDisplay.innerHTML = "";
   testInput.value = "";
   testInput.disabled = false;
@@ -123,7 +235,6 @@ function tryAgain() {
   test.start(appState.durationSeconds, appState.currentPassage, {
     onTick(remaining) {
       testTimerEl.textContent = `${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, "0")}`;
-      renderPassageHighlight();
     },
     onComplete(result) {
       appState.testInProgress = false;
@@ -205,21 +316,46 @@ function focusTrap(e) {
 }
 
 function init() {
-  timerSelect.value = String(appState.durationSeconds);
+  document.querySelectorAll(".duration-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const duration = parseInt(btn.dataset.duration, 10);
+      appState.durationSeconds = duration;
+      document.querySelectorAll(".duration-btn").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      if (durationSelectedLabel) durationSelectedLabel.textContent = `(${getDurationLabel(duration)} selected)`;
+    });
+  });
+  if (durationSelectedLabel) durationSelectedLabel.textContent = `(${getDurationLabel(appState.durationSeconds)} selected)`;
 
   btnStart.addEventListener("click", () => {
     if (appState.screen === "landing") startTest();
   });
 
   testInput.addEventListener("input", () => {
-    test.setInput(testInput.value);
+    let v = testInput.value;
+    if (v.includes("\n")) v = v.replace(/\n/g, " ");
+    if (v !== testInput.value) testInput.value = v;
+    test.setInput(v);
+    renderPassageHighlight();
+  });
+
+  testInput.addEventListener("paste", (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text").replace(/\n/g, " ");
+    const start = testInput.selectionStart;
+    const end = testInput.selectionEnd;
+    const val = testInput.value;
+    const newVal = val.slice(0, start) + text + val.slice(end);
+    testInput.value = newVal;
+    test.setInput(newVal);
     renderPassageHighlight();
   });
 
   testInput.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
-      if (confirm("Cancel the test?")) {
+      e.stopPropagation();
+      if (appState.testInProgress) {
         test.stop();
         appState.testInProgress = false;
         showScreen(SCREENS.landing);
@@ -228,9 +364,16 @@ function init() {
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && appState.screen === "landing" && document.activeElement?.id !== "timer-select") {
+    if (e.key === "Enter" && appState.screen === "landing" && !document.activeElement?.classList?.contains("duration-btn")) {
       e.preventDefault();
       startTest();
+    }
+    if (e.key === "Escape" && appState.screen === "test" && appState.testInProgress) {
+      e.preventDefault();
+      e.stopPropagation();
+      test.stop();
+      appState.testInProgress = false;
+      showScreen(SCREENS.landing);
     }
   });
 
@@ -241,6 +384,19 @@ function init() {
 
   setupNav();
   showScreen(SCREENS.landing);
+  if (passageWrapper) {
+    passageWrapper.addEventListener("click", () => {
+      if (appState.screen === "test" && appState.testInProgress) testInput.focus();
+    });
+  }
+
+  function lockPassageScroll(e) {
+    if (appState.screen === "test" && appState.testInProgress && passageDisplay.contains(e.target)) {
+      e.preventDefault();
+    }
+  }
+  passageDisplay.addEventListener("wheel", lockPassageScroll, { passive: false });
+  passageDisplay.addEventListener("touchmove", lockPassageScroll, { passive: false });
 }
 
 init();

@@ -63,6 +63,10 @@ body {
   text-decoration: underline;
 }
 
+.nav-icon {
+  opacity: 0.85;
+}
+
 .main {
   max-width: 800px;
   margin: 0 auto;
@@ -90,28 +94,123 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
-.config-card h2 {
+.config-heading {
   margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.config-card label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+.config-heading-icon {
+  font-size: 1.5rem;
+}
+
+.config-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
   color: var(--color-text-muted);
 }
 
-.config-card select {
-  width: 100%;
-  max-width: 240px;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #cbd5e1;
+.duration-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.duration-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.duration-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 2px solid #cbd5e1;
   border-radius: var(--radius);
-  margin-bottom: 1.5rem;
   background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.duration-btn:hover {
+  border-color: var(--color-primary);
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.duration-btn.selected {
+  border-color: var(--color-primary);
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--color-primary);
+}
+
+.duration-selected {
+  margin: 0 0 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.btn-start-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-enter-icon {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.hint-pill {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+}
+
+.empty-state {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.empty-state-hero {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.7;
+}
+
+.empty-state-stats {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 0.5rem;
+}
+
+.empty-state-tip {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0;
 }
 
 .btn {
@@ -168,14 +267,22 @@ body {
   font-family: var(--font-mono);
   font-size: 1.125rem;
   line-height: 1.7;
-  padding: 1rem;
+  padding: 0.875rem 1rem;
   background: var(--color-surface);
   border: 1px solid #e2e8f0;
   border-radius: var(--radius);
   margin-bottom: 0.75rem;
-  min-height: 120px;
+  height: 10rem;
+  min-height: 8rem;
+  overflow: hidden;
   white-space: pre-wrap;
   word-wrap: break-word;
+  position: relative;
+  touch-action: none;
+}
+
+.passage-display .passage-inner {
+  will-change: transform;
 }
 
 .passage-display .char {
@@ -197,21 +304,19 @@ body {
   border-bottom: 2px solid var(--color-primary);
 }
 
-.test-input {
-  width: 100%;
-  padding: 1rem;
-  font-family: var(--font-mono);
-  font-size: 1.125rem;
-  line-height: 1.7;
-  border: 2px solid #e2e8f0;
-  border-radius: var(--radius);
-  resize: vertical;
-  min-height: 140px;
+.passage-display .char.passage-ellipsis {
+  color: var(--color-text-muted);
+  user-select: none;
 }
 
-.test-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
+.test-input-hidden {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
 }
 
 .test-hint {
@@ -374,8 +479,7 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .passage-display,
-  .test-input {
+  .passage-display {
     font-size: 1rem;
   }
 }

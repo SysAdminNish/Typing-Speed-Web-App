@@ -36,23 +36,28 @@ const PASSAGES = [
   "Quality is not an act, it is a habit. We are what we repeatedly do. Excellence, then, is not an act, but a habit. Well begun is half done. The roots of education are bitter, but the fruit is sweet.",
 ];
 
+/** Minimum characters to generate (covers ~10 min at high WPM with buffer). */
+const MIN_PASSAGE_LENGTH = 15000;
+
 /**
- * Returns a random passage from the list, long enough for extended tests.
- * For 10-minute tests we need substantial text; we concatenate 2–3 random passages if needed.
- * @returns {string} A single passage (or combined passages) for the user to type.
+ * Returns a long, random passage by concatenating and shuffling from the list.
+ * Text is effectively endless for any test duration; we loop over passages until we exceed min length.
+ * @param {number} [durationSeconds=600] - Used to ensure enough text (optional).
+ * @returns {string} A single long passage for the user to type.
  */
-export function getRandomPassage() {
-  const count = PASSAGES.length;
-  const idx = Math.floor(Math.random() * count);
-  let text = PASSAGES[idx];
-  // For long tests, append another random passage to ensure enough content
-  if (text.length < 1500) {
-    const idx2 = (idx + 1 + Math.floor(Math.random() * (count - 1))) % count;
-    text = text + " " + PASSAGES[idx2];
-  }
-  if (text.length < 2500) {
-    const idx3 = (idx + 2 + Math.floor(Math.random() * (count - 1))) % count;
-    text = text + " " + PASSAGES[idx3];
+export function getRandomPassage(durationSeconds = 600) {
+  const minChars = Math.max(MIN_PASSAGE_LENGTH, (durationSeconds / 60) * 120 * 5);
+  const indices = [...Array(PASSAGES.length).keys()];
+  let text = "";
+  while (text.length < minChars) {
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    for (const idx of indices) {
+      text += (text ? " " : "") + PASSAGES[idx];
+      if (text.length >= minChars) break;
+    }
   }
   return text;
 }

@@ -11,9 +11,9 @@
   <header class="header">
     <h1>Typing Speed Test</h1>
     <nav class="nav">
-      <a href="#landing" id="nav-landing" class="nav-link">Test</a>
-      <a href="#reports" id="nav-reports" class="nav-link">Reports</a>
-      <a href="#resources" id="nav-resources" class="nav-link">Resources</a>
+      <a href="#landing" id="nav-landing" class="nav-link">Test <span class="nav-icon" aria-hidden="true">&#127919;</span></a>
+      <a href="#reports" id="nav-reports" class="nav-link">Reports <span class="nav-icon" aria-hidden="true">&#128202;</span></a>
+      <a href="#resources" id="nav-resources" class="nav-link">Resources <span class="nav-icon" aria-hidden="true">&#128214;</span></a>
     </nav>
   </header>
 
@@ -21,17 +21,24 @@
     <!-- Landing / Config -->
     <section id="screen-landing" class="screen" aria-label="Test configuration">
       <div class="config-card">
-        <h2>Configure your test</h2>
-        <label for="timer-select">Duration</label>
-        <select id="timer-select" aria-label="Test duration">
-          <option value="30">30 seconds</option>
-          <option value="60">1 minute</option>
-          <option value="120">2 minutes</option>
-          <option value="300">5 minutes</option>
-          <option value="600">10 minutes</option>
-        </select>
-        <button type="button" id="btn-start" class="btn btn-primary">Start Test</button>
-        <p class="hint">Press Enter to start</p>
+        <h2 class="config-heading"><span class="config-heading-icon" aria-hidden="true">&#9000;</span> Configure your test</h2>
+        <p class="config-subtitle">Choose your duration and start typing.</p>
+        <label class="duration-label">Duration</label>
+        <div class="duration-buttons" role="group" aria-label="Test duration">
+          <button type="button" class="duration-btn" data-duration="30">30s</button>
+          <button type="button" class="duration-btn selected" data-duration="60">1min</button>
+          <button type="button" class="duration-btn" data-duration="120">2min</button>
+          <button type="button" class="duration-btn" data-duration="300">5min</button>
+          <button type="button" class="duration-btn" data-duration="600">10min</button>
+        </div>
+        <p class="duration-selected" id="duration-selected-label">(1min selected)</p>
+        <button type="button" id="btn-start" class="btn btn-primary btn-start-cta">Start Test <span class="btn-enter-icon" aria-hidden="true">&#9166;</span></button>
+        <p class="hint hint-pill"><span class="pill">Press Enter to start</span></p>
+        <div class="empty-state" id="empty-state">
+          <div class="empty-state-hero" aria-hidden="true">&#128187;</div>
+          <p class="empty-state-stats" id="empty-state-stats"></p>
+          <p class="empty-state-tip" id="empty-state-tip">Tip: Keep your fingers on the home row keys.</p>
+        </div>
       </div>
     </section>
 
@@ -42,16 +49,16 @@
       </div>
       <div class="passage-wrapper">
         <div id="passage-display" class="passage-display" aria-hidden="true"></div>
-        <textarea
+        <input
+          type="text"
           id="test-input"
-          class="test-input"
-          placeholder="Type the text above..."
-          rows="6"
-          aria-label="Type the passage"
+          class="test-input test-input-hidden"
+          aria-label="Type the passage above"
           spellcheck="false"
           autocomplete="off"
           autocapitalize="off"
-        ></textarea>
+          tabindex="0"
+        />
       </div>
       <p class="test-hint">Press Escape to cancel test</p>
     </section>
