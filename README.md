@@ -1,10 +1,12 @@
-# ⌨️ Typing Speed Test
+# Typing Speed Test
 
 A clean, modern web application for testing and improving your typing speed. Track your progress, analyze your performance, and build better typing habits.
 
+## Live Demo
+https://sysadminnish.github.io/Typing-Speed-Web-App/
 
 
-## ✨ Features
+## Features
 
 - **Multiple Test Durations**: Choose from 30 seconds to 10 minutes
 - **Real-time Feedback**: See your typing accuracy as you type with color-coded characters
@@ -15,7 +17,7 @@ A clean, modern web application for testing and improving your typing speed. Tra
 - **Keyboard Shortcuts**: Quick access with Enter to start and Escape to exit
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -55,7 +57,7 @@ npx serve
 http://localhost:8000
 ```
 
-## 📖 How to Use
+## How to Use
 
 1. **Select Duration**: Choose your preferred test duration (30s, 1min, 2min, 5min, or 10min)
 2. **Start Test**: Click "Start Test" or press Enter
@@ -68,14 +70,14 @@ http://localhost:8000
 - **Enter**: Start a new test (from landing screen)
 - **Escape**: Exit current test and return to home
 
-## 📊 Metrics Explained
+## Metrics Explained
 
 - **WPM (Words Per Minute)**: Your typing speed, calculated as (characters typed / 5) / (time in minutes)
 - **Accuracy**: Percentage of correctly typed characters
 - **Consistency**: Standard deviation of your WPM throughout the test (lower is better)
 - **Characters Typed**: Total number of characters you entered during the test
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 typing-speed-test/
@@ -89,7 +91,7 @@ typing-speed-test/
 └── README.md          # This file
 ```
 
-## 🛠️ Technical Details
+## Technical Details
 
 ### Built With
 
@@ -105,7 +107,7 @@ typing-speed-test/
 - Safari 14+
 - Opera 75+
 
-## 💾 Data Storage
+## Data Storage
 
 All test results are stored locally in your browser using the LocalStorage API. Your data never leaves your device, ensuring complete privacy.
 
@@ -122,7 +124,7 @@ To clear your test history, open your browser's developer console and run:
 localStorage.removeItem('typingTestHistory');
 ```
 
-## 🎨 Customization
+## Customization
 
 ### Adding New Text Passages
 
@@ -148,7 +150,7 @@ Modify the CSS variables in `styles.css`:
 }
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Here's how you can help:
 
@@ -168,17 +170,17 @@ Contributions are welcome! Here's how you can help:
 - [ ] Export test results as CSV/JSON
 - [ ] Add sound effects for typing feedback
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Text passages sourced from classic literature, famous quotes, and public domain works
 - Inspired by popular typing test platforms like Monkeytype and TypeRacer
 - Chart.js for beautiful, responsive charts
 
-## 📧 Contact
+## Contact
 
 Project Link: https://github.com/SysAdminNish/Typing-Speed-Web-App
 
